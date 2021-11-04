@@ -17,7 +17,6 @@ package workload
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/go-logr/logr"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -30,8 +29,6 @@ import (
 	"github.com/vmware-tanzu/cartographer/pkg/repository"
 	"github.com/vmware-tanzu/cartographer/pkg/utils"
 )
-
-const reconcileInterval = 5 * time.Second
 
 type Reconciler struct {
 	repo                    repository.Repository
@@ -140,7 +137,7 @@ func (r *Reconciler) completeReconciliation(ctx context.Context, workload *v1alp
 		return ctrl.Result{}, fmt.Errorf("workload not ready")
 	}
 
-	return ctrl.Result{RequeueAfter: reconcileInterval}, nil
+	return ctrl.Result{}, nil
 }
 
 func (r *Reconciler) checkSupplyChainReadiness(supplyChain *v1alpha1.ClusterSupplyChain) error {
