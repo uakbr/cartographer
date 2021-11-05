@@ -279,7 +279,7 @@ var _ = Describe("WorkloadReconciler", func() {
 		})
 	})
 
-	Context("a supply chain with a template that has stamped a test crd", func() {
+	FContext("a supply chain with a template that has stamped a test crd", func() {
 		var (
 			test *resources.Test
 		)
@@ -297,7 +297,7 @@ var _ = Describe("WorkloadReconciler", func() {
 					apiVersion: test.run/v1alpha1
 					kind: Test
 					metadata:
-					  name: test-crd
+					  name: test-resource
 					spec:
 					  foo: "bar"
 			`)
@@ -352,10 +352,13 @@ var _ = Describe("WorkloadReconciler", func() {
 
 			test = &resources.Test{}
 
+			// FIXME: make this more obvious
 			Eventually(func() ([]v1.Condition, error) {
-				err := c.Get(ctx, client.ObjectKey{Name: "test-crd", Namespace: testNS}, test)
+				err := c.Get(ctx, client.ObjectKey{Name: "test-resource", Namespace: testNS}, test)
 				return test.Status.Conditions, err
 			}).Should(BeNil())
+
+			_ = c.Get(ctx, client.ObjectKey{Name: "test-resource", Namespace: testNS}, test)
 
 			Eventually(func() []v1.Condition {
 				obj := &v1alpha1.Workload{}
@@ -364,6 +367,11 @@ var _ = Describe("WorkloadReconciler", func() {
 
 				return obj.Status.Conditions
 			}, 5*time.Second).Should(ContainElements(
+				MatchFields(IgnoreExtras, Fields{
+					"Type":   Equal("SupplyChainReady"),
+					"Reason": Equal("Ready"),
+					"Status": Equal(v1.ConditionTrue),
+				}),
 				MatchFields(IgnoreExtras, Fields{
 					"Type":   Equal("ResourcesSubmitted"),
 					"Reason": Equal("MissingValueAtPath"),
@@ -396,9 +404,14 @@ var _ = Describe("WorkloadReconciler", func() {
 				}
 				err := c.Status().Update(ctx, test)
 				Expect(err).NotTo(HaveOccurred())
+
+				Eventually(func() ([]v1.Condition, error) {
+					err := c.Get(ctx, client.ObjectKey{Name: "test-resource", Namespace: testNS}, test)
+					return test.Status.Conditions, err
+				}).Should(Not(BeNil()))
 			})
 
-			It("immediately reconciles", func() {
+			FIt("immediately reconciles", func() {
 				Eventually(func() []v1.Condition {
 					obj := &v1alpha1.Workload{}
 					err := c.Get(ctx, client.ObjectKey{Name: "workload-joe", Namespace: testNS}, obj)

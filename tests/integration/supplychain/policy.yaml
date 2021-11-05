@@ -15,11 +15,13 @@
 apiVersion: audit.k8s.io/v1 # This is required.
 kind: Policy
 # Don't generate audit events for all requests in RequestReceived stage.
-omitStages:
-  - "RequestReceived"
 rules:
   # Log pod changes at RequestResponse level
   - level: Request
     resources:
       - group: "carto.run"
+        resources: ["*"]
+  - level: RequestResponse
+    resources:
+      - group: "test.run"
         resources: ["*"]
