@@ -17,7 +17,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: test-configmap-build
+  name: unknown---test-configmap-build
 data:
   best_school: "some school"
 ---
@@ -25,7 +25,7 @@ data:
 apiVersion: carto.run/v1alpha1
 kind: Workload
 metadata:
-  name: petclinic
+  name: unknown---petclinic
 status:
   conditions:
     - type: SupplyChainReady
@@ -38,5 +38,5 @@ status:
       status: "True"
       reason: Ready
   supplyChainRef:
-    name: responsible-ops-unknown
+    name: unknown---responsible-ops
     kind: ClusterSupplyChain

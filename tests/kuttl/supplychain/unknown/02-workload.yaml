@@ -15,7 +15,7 @@
 apiVersion: carto.run/v1alpha1
 kind: Workload
 metadata:
-  name: petclinic
+  name: unknown---petclinic
   labels:
     type: "webapp-unknown"
 spec:

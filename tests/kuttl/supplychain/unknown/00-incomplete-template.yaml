@@ -17,11 +17,11 @@
 apiVersion: carto.run/v1alpha1
 kind: ClusterImageTemplate
 metadata:
-  name: image-template
+  name: unknown---image-template
 spec:
   imagePath: .data.best_school
   template:
     apiVersion: v1
     kind: ConfigMap
     metadata:
-      name: test-configmap-build
+      name: unknown---test-configmap-build

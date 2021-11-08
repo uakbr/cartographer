@@ -17,7 +17,7 @@
 apiVersion: carto.run/v1alpha1
 kind: Workload
 metadata:
-  name: petclinic
+  name: unknown---petclinic
 status:
   conditions:
     - type: SupplyChainReady
@@ -32,5 +32,5 @@ status:
       reason: MissingValueAtPath
       message: "Resource 'image-provider' is waiting to read value '.data.best_school'"
   supplyChainRef:
-    name: responsible-ops-unknown
+    name: unknown---responsible-ops
     kind: ClusterSupplyChain
