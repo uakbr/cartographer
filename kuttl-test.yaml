@@ -16,9 +16,7 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 startControlPlane: true
 testDirs:
-  - tests/kuttl/runnable
   - tests/kuttl/supplychain
-  - tests/kuttl/delivery
 crdDir: config/crd/bases
 manifestDirs:
   - tests/resources/crds
