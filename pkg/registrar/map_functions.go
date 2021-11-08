@@ -32,6 +32,7 @@ import (
 //counterfeiter:generate . Logger
 type Logger interface {
 	Error(err error, msg string, keysAndValues ...interface{})
+	Info(msg string, keysAndValues ...interface{})
 }
 
 type Mapper struct {
@@ -42,6 +43,7 @@ type Mapper struct {
 
 func (mapper *Mapper) TemplateToWorkloadRequests(template client.Object) []reconcile.Request {
 	supplyChains := mapper.templateToSupplyChains(template)
+	mapper.Logger.Info("[TemplateToWorkload] Supply Chains", "template_name", template.GetName(), "supply_chains", supplyChains)
 
 	var requests []reconcile.Request
 	for _, supplyChain := range supplyChains {
@@ -49,6 +51,7 @@ func (mapper *Mapper) TemplateToWorkloadRequests(template client.Object) []recon
 		requests = append(requests, reqs...)
 	}
 
+	mapper.Logger.Info("[TemplateToWorkload] Success", "template_name", template.GetName(), "requests", requests)
 	return requests
 }
 
@@ -73,6 +76,8 @@ func (mapper *Mapper) templateToSupplyChains(template client.Object) []*v1alpha1
 		return nil
 	}
 
+	mapper.Logger.Info("[templateToSupplyChains] supply chains", "template_name", template.GetName(), "supply_chains", list)
+
 	templateKind := template.GetObjectKind().GroupVersionKind().Kind
 
 	var supplyChains []*v1alpha1.ClusterSupplyChain
@@ -91,19 +96,21 @@ func (mapper *Mapper) ClusterSupplyChainToWorkloadRequests(object client.Object)
 
 	supplyChain, ok := object.(*v1alpha1.ClusterSupplyChain)
 	if !ok {
-		mapper.Logger.Error(nil, "cluster supply chain to workload requests: cast to ClusterSupplyChain failed")
+		mapper.Logger.Error(nil, "[SCtoWorkload] cluster supply chain to workload requests: cast to ClusterSupplyChain failed")
 		return nil
 	}
 
 	list := &v1alpha1.WorkloadList{}
 
 	err = mapper.Client.List(context.TODO(), list,
-		client.InNamespace(supplyChain.Namespace),
+		//client.InNamespace(supplyChain.Namespace),
 		client.MatchingLabels(supplyChain.Spec.Selector))
 	if err != nil {
-		mapper.Logger.Error(fmt.Errorf("client list: %w", err), "cluster supply chain to workload requests: client list")
+		mapper.Logger.Error(fmt.Errorf("client list: %w", err), "[SCtoWorkload] cluster supply chain to workload requests: client list")
 		return nil
 	}
+
+	mapper.Logger.Info("[SCtoWorkload] Workloads", "supply_chain_name", supplyChain.Name, "workloads", list)
 
 	var requests []reconcile.Request
 	for _, workload := range list.Items {
@@ -115,6 +122,7 @@ func (mapper *Mapper) ClusterSupplyChainToWorkloadRequests(object client.Object)
 		})
 	}
 
+	mapper.Logger.Info("[SCtoWorkload] Success", "supply_chain_name", supplyChain.Name, "requests", requests)
 	return requests
 }
 
