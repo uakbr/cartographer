@@ -76,12 +76,13 @@ func (mapper *Mapper) templateToSupplyChains(template client.Object) []*v1alpha1
 		return nil
 	}
 
-	mapper.Logger.Info("[templateToSupplyChains] supply chains", "template_name", template.GetName(), "supply_chains", list)
+	mapper.Logger.Info("[templateToSupplyChains] supply chains", "template_name", template.GetName(), "supply_chains", list.Items)
 
 	templateKind := template.GetObjectKind().GroupVersionKind().Kind
 
 	var supplyChains []*v1alpha1.ClusterSupplyChain
-	for _, sc := range list.Items {
+	for scIndex, _ := range list.Items {
+		sc :=  list.Items[scIndex]
 		for _, res := range sc.Spec.Resources {
 			if res.TemplateRef.Kind == templateKind && res.TemplateRef.Name == templateName {
 				supplyChains = append(supplyChains, &sc)
@@ -110,7 +111,7 @@ func (mapper *Mapper) ClusterSupplyChainToWorkloadRequests(object client.Object)
 		return nil
 	}
 
-	mapper.Logger.Info("[SCtoWorkload] Workloads", "supply_chain_name", supplyChain.Name, "workloads", list)
+	mapper.Logger.Info("[SCtoWorkload] Workloads", "supply_chain_name", supplyChain.Name, "workloads", list.Items)
 
 	var requests []reconcile.Request
 	for _, workload := range list.Items {
