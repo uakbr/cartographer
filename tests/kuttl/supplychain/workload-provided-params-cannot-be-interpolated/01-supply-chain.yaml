@@ -26,17 +26,3 @@ spec:
         kind: ClusterSourceTemplate
         name: git-template---template-broken-path
 
----
-apiVersion: carto.run/v1alpha1
-kind: ClusterSupplyChain
-metadata:
-  name: supply-chain---template-broken-tag
-spec:
-  selector:
-    integration-test: "broken-tag"
-  resources:
-    - name: source-provider
-      templateRef:
-        kind: ClusterSourceTemplate
-        name: git-template---template-broken-tag
-

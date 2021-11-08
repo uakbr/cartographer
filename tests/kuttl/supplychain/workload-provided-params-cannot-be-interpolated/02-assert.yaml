@@ -30,23 +30,3 @@ status:
   supplyChainRef:
     name: supply-chain---template-broken-path
     kind: ClusterSupplyChain
-
----
-apiVersion: carto.run/v1alpha1
-kind: Workload
-metadata:
-  name: petclinic-broken-tag
-status:
-  conditions:
-    - type: SupplyChainReady
-      status: "True"
-      reason: Ready
-    - type: ResourcesSubmitted
-      status: "False"
-      reason: TemplateStampFailure
-    - type: Ready
-      status: "False"
-      reason: TemplateStampFailure
-  supplyChainRef:
-    name: supply-chain---template-broken-tag
-    kind: ClusterSupplyChain
