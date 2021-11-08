@@ -118,6 +118,8 @@ func registerWorkloadController(mgr manager.Manager) error {
 		return fmt.Errorf("watch: %w", err)
 	}
 
+	// Fixme - need to watch templates
+
 	return nil
 }
 
