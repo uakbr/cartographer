@@ -279,7 +279,7 @@ var _ = Describe("WorkloadReconciler", func() {
 		})
 	})
 
-	FContext("a supply chain with a template that has stamped a test crd", func() {
+	Context("a supply chain with a template that has stamped a test crd", func() {
 		var (
 			test *resources.Test
 		)

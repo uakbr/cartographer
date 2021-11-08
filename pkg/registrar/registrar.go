@@ -118,7 +118,14 @@ func registerWorkloadController(mgr manager.Manager) error {
 		return fmt.Errorf("watch: %w", err)
 	}
 
-	// Fixme - need to watch templates
+	for _, template := range v1alpha1.ValidSupplyChainTemplates {
+		if err := ctrl.Watch(
+			&source.Kind{Type: template},
+			handler.EnqueueRequestsFromMapFunc(mapper.TemplateToWorkloadRequests),
+		); err != nil {
+			return fmt.Errorf("watch template: %w", err)
+		}
+	}
 
 	return nil
 }
