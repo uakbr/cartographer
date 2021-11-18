@@ -184,5 +184,5 @@ func (r *Reconciler) getDeliveriesForDeliverable(ctx context.Context, deliverabl
 		return nil, fmt.Errorf("too many deliveries match the deliverable selector label")
 	}
 
-	return &deliveries[0], nil
+	return deliveries[0], nil
 }
