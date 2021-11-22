@@ -34,8 +34,9 @@ type Param struct {
 }
 
 type OverridableParam struct {
-	Param           `json:",inline"`
-	OverridableFlag bool `json:"overridable"`
+	Param `json:",inline"`
+	// +optional
+	OverridableFlag bool `json:"overridable,omitempty"`
 }
 
 type ResourceReference struct {

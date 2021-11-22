@@ -59,7 +59,6 @@ spec:
                       x-kubernetes-preserve-unknown-fields: true
                   required:
                   - name
-                  - overridable
                   - value
                   type: object
                 type: array
@@ -98,7 +97,6 @@ spec:
                             x-kubernetes-preserve-unknown-fields: true
                         required:
                         - name
-                        - overridable
                         - value
                         type: object
                       type: array
