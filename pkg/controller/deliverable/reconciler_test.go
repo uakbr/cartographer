@@ -200,7 +200,7 @@ var _ = Describe("Reconciler", func() {
 					},
 				},
 			}
-			repo.GetDeliveriesForDeliverableReturns([]v1alpha1.ClusterDelivery{delivery}, nil)
+			repo.GetDeliveriesForDeliverableReturns([]*v1alpha1.ClusterDelivery{&delivery}, nil)
 			stampedObject1 = &unstructured.Unstructured{}
 			stampedObject1.SetGroupVersionKind(schema.GroupVersionKind{
 				Group:   "thing.io",
@@ -269,7 +269,7 @@ var _ = Describe("Reconciler", func() {
 						Message: "some informative message",
 					},
 				}
-				repo.GetDeliveriesForDeliverableReturns([]v1alpha1.ClusterDelivery{delivery}, nil)
+				repo.GetDeliveriesForDeliverableReturns([]*v1alpha1.ClusterDelivery{&delivery}, nil)
 			})
 
 			It("does not return an error", func() {
@@ -611,7 +611,7 @@ var _ = Describe("Reconciler", func() {
 	Context("and the repo returns multiple deliveries", func() {
 		BeforeEach(func() {
 			delivery := v1alpha1.ClusterDelivery{}
-			repo.GetDeliveriesForDeliverableReturns([]v1alpha1.ClusterDelivery{delivery, delivery}, nil)
+			repo.GetDeliveriesForDeliverableReturns([]*v1alpha1.ClusterDelivery{&delivery, &delivery}, nil)
 		})
 
 		It("does not return an error", func() {

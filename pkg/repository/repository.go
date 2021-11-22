@@ -37,8 +37,8 @@ type Repository interface {
 	GetClusterTemplate(ctx context.Context, ref v1alpha1.ClusterTemplateReference) (client.Object, error)
 	GetDeliveryClusterTemplate(ctx context.Context, ref v1alpha1.DeliveryClusterTemplateReference) (client.Object, error)
 	GetRunTemplate(ctx context.Context, ref v1alpha1.TemplateReference) (*v1alpha1.ClusterRunTemplate, error)
-	GetSupplyChainsForWorkload(ctx context.Context, workload *v1alpha1.Workload) ([]v1alpha1.ClusterSupplyChain, error)
-	GetDeliveriesForDeliverable(ctx context.Context, deliverable *v1alpha1.Deliverable) ([]v1alpha1.ClusterDelivery, error)
+	GetSupplyChainsForWorkload(ctx context.Context, workload *v1alpha1.Workload) ([]*v1alpha1.ClusterSupplyChain, error)
+	GetDeliveriesForDeliverable(ctx context.Context, deliverable *v1alpha1.Deliverable) ([]*v1alpha1.ClusterDelivery, error)
 	GetWorkload(ctx context.Context, name string, namespace string) (*v1alpha1.Workload, error)
 	GetDeliverable(ctx context.Context, name string, namespace string) (*v1alpha1.Deliverable, error)
 	GetSupplyChain(ctx context.Context, name string) (*v1alpha1.ClusterSupplyChain, error)
@@ -204,36 +204,44 @@ func (r *repository) patchUnstructured(ctx context.Context, existingObj *unstruc
 	return nil
 }
 
-func (r *repository) GetSupplyChainsForWorkload(ctx context.Context, workload *v1alpha1.Workload) ([]v1alpha1.ClusterSupplyChain, error) {
+func (r *repository) GetSupplyChainsForWorkload(ctx context.Context, workload *v1alpha1.Workload) ([]*v1alpha1.ClusterSupplyChain, error) {
 	list := &v1alpha1.ClusterSupplyChainList{}
 	if err := r.cl.List(ctx, list); err != nil {
 		return nil, fmt.Errorf("list supply chains: %w", err)
 	}
 
-	var clusterSupplyChains []v1alpha1.ClusterSupplyChain
-	for _, supplyChain := range list.Items {
-		if selectorMatchesLabels(supplyChain.Spec.Selector, workload.Labels) {
-			clusterSupplyChains = append(clusterSupplyChains, supplyChain)
-		}
+	selectorGatters := []SelectorGetter{}
+	for _, item := range list.Items {
+		item := item
+		selectorGatters = append(selectorGatters, &item)
 	}
 
-	return clusterSupplyChains, nil
+	supplyChains := []*v1alpha1.ClusterSupplyChain{}
+	for _, matchingObject := range BestLabelMatches(workload, selectorGatters) {
+		supplyChains = append(supplyChains, matchingObject.(*v1alpha1.ClusterSupplyChain))
+	}
+
+	return supplyChains, nil
 }
 
-func (r *repository) GetDeliveriesForDeliverable(ctx context.Context, deliverable *v1alpha1.Deliverable) ([]v1alpha1.ClusterDelivery, error) {
+func (r *repository) GetDeliveriesForDeliverable(ctx context.Context, deliverable *v1alpha1.Deliverable) ([]*v1alpha1.ClusterDelivery, error) {
 	list := &v1alpha1.ClusterDeliveryList{}
 	if err := r.cl.List(ctx, list); err != nil {
 		return nil, fmt.Errorf("list deliveries: %w", err)
 	}
 
-	var clusterDeliveries []v1alpha1.ClusterDelivery
-	for _, delivery := range list.Items {
-		if selectorMatchesLabels(delivery.Spec.Selector, deliverable.Labels) {
-			clusterDeliveries = append(clusterDeliveries, delivery)
-		}
+	selectorGatters := []SelectorGetter{}
+	for _, item := range list.Items {
+		item := item
+		selectorGatters = append(selectorGatters, &item)
 	}
 
-	return clusterDeliveries, nil
+	deliveries := []*v1alpha1.ClusterDelivery{}
+	for _, matchingObject := range BestLabelMatches(deliverable, selectorGatters) {
+		deliveries = append(deliveries, matchingObject.(*v1alpha1.ClusterDelivery))
+	}
+
+	return deliveries, nil
 }
 
 func (r *repository) getObject(ctx context.Context, name string, namespace string, obj client.Object) error {
@@ -288,16 +296,6 @@ func (r *repository) GetRunnable(ctx context.Context, name string, namespace str
 	}
 
 	return runnable, nil
-}
-
-func selectorMatchesLabels(selector map[string]string, labels map[string]string) bool {
-	for key, value := range selector {
-		if labels[key] != value {
-			return false
-		}
-	}
-
-	return true
 }
 
 func (r *repository) GetSupplyChain(ctx context.Context, name string) (*v1alpha1.ClusterSupplyChain, error) {
